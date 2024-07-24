@@ -1,5 +1,5 @@
 {
-    "name": "figma-deepL-auto-translater-plugin",
+    "name": "DeepL Translation",
     "version": "1.0.0",
     "description": "Figma DeelL auto translater plugin",
     "author": "",
@@ -10,8 +10,12 @@
     },
     "license": "",
     "devDependencies": {
-        "@figma/plugin-typings": "*",
+        "@figma/plugin-typings": "^1.97.0",
+        "@types/franc": "^5.0.3",
+        "@types/node": "^20.14.11",
         "typescript": "*"
     },
-    "dependencies": {}
+    "dependencies": {
+        "franc": "^6.2.0"
+    }
 }

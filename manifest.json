@@ -1,6 +1,6 @@
 {
-    "name": "Figma DeepL Translation Plugin",
-    "id": "1226589707101073183",
+    "name": "DeepL Translation",
+    "id": "111",
     "api": "1.0.0",
     "main": "code.js",
     "capabilities": [],
