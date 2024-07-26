@@ -1,34 +1,64 @@
+
 //映射语言中文名
 const languageNames: { [key: string]: string } = {
     'en': '英语',
     'zh': '中文',
     'ja': '日语',
+    'ko': '韩语',
+    'ru': '俄语',
     // 可以根据需要添加更多语言
 };
 
 const franc = (function() {
     const langData = {
-      cmn: /[\u4E00-\u9FFF]/,  // 简体中文
-      jpn: /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF]/,  // 日语
-      kor: /[\uAC00-\uD7AF\u1100-\u11FF]/,  // 韩语
-      eng: /[a-zA-Z]/,  // 英语
+      cmn: /[\u4E00-\u9FFF]/g, // 中文（简体和繁体）
+      jpn: /[\u3040-\u309F\u30A0-\u30FF]|[\u4E00-\u9FAF]|[\u3400-\u4DBF]/g, // 日语（假名和汉字）
+      kor: /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/g, // 韩语（谚文音节和谚文字母）
+      rus: /[\u0400-\u04FF\u0500-\u052F]/g, // 俄语（西里尔字母）
+      eng: /./g, // 英语（包括扩展的Latin-1字符）
+      
+      // 可以根据需要添加更多语言
     };
   
     return function detect(input: string): string {
       let maxScore = 0;
       let detectedLang = 'und';  // 未知语言的代码
+      const totalLength = input.length;
   
       for (const [lang, regex] of Object.entries(langData)) {
-        const score = (input.match(regex) || []).length / input.length;
+        // 使用String.prototype.replace来计数，这通常比match快
+        const count = (input.replace(regex, '') !== input) ?
+                      (input.length - input.replace(regex, '').length) : 0;
+        const score = count / totalLength;
+        console.log(`Lang: ${lang}, Score: ${score}`,input, input.replace(regex, ''));
+        
+  
         if (score > maxScore) {
           maxScore = score;
           detectedLang = lang;
         }
+  
+        // 早期退出策略
+        if (score > 0.8) break;
       }
   
       return detectedLang;
     };
-})();
+  })();
+
+const mapLanguageCode = (francCode: string): string => {
+    const langMap: { [key: string]: string } = {
+        'cmn': 'ZH',
+        'jpn': 'JA',
+        'kor': 'KO',
+        'eng': 'EN',
+        'rus': 'RU',
+
+
+    };
+
+    return langMap[francCode] || 'EN';
+};
 
 enum messageType {
     translate = "translate",
@@ -73,20 +103,39 @@ const showInfoMessage = (message: string) => {
 
 const detectLanguage = (text: string): string => {
     const detectedLang = franc(text);
+    console.log(detectedLang);
+
     return mapLanguageCode(detectedLang);
 };
 
-const mapLanguageCode = (francCode: string): string => {
-    const langMap: { [key: string]: string } = {
-        'cmn': 'ZH',
-        'jpn': 'JA',
-        'kor': 'KO',
-        'eng': 'EN',
-    };
+const fetchTranslations = async (texts: string[], target: string): Promise<string[] | undefined> => {
+    if (texts.length === 0) {
+        showErrorMessage("翻译文本不能为空");
+        return undefined;
+    }
 
-    return langMap[francCode] || 'EN';
+    try {
+        const response = await fetch(`http://localhost:3000/api/translate`, {
+            method: "POST",
+
+            body: JSON.stringify({
+                texts: texts,
+                target_lang: target
+            }),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            if (result.translations && result.translations.length > 0) {
+                return result.translations.map((t: any) => t.text);
+            }
+        }
+        throw new Error("翻译失败");
+    } catch (error) {
+        figma.notify(`API 请求出现问题。\n(${error})`);
+        return undefined;
+    }
 };
-
 
 
 const translateHandler = async (messageData: any) => {
@@ -104,6 +153,8 @@ const translateHandler = async (messageData: any) => {
     const collectTexts = (node: SceneNode) => {
         if (node.type === "TEXT") {
             const sourceLanguage = detectLanguage(node.characters);
+            console.log(sourceLanguage);
+            
             if (sourceLanguage.toLowerCase() !== messageData.target.toLowerCase()) {
                 textsToTranslate.push({ node: node as TextNode, text: node.characters });
             }
@@ -203,38 +254,7 @@ const replaceTextWithStyle = async (node: TextNode, newText: string) => {
     }
 };
 
-const fetchTranslations = async (texts: string[], target: string): Promise<string[] | undefined> => {
-    if (texts.length === 0) {
-        showErrorMessage("翻译文本不能为空");
-        return undefined;
-    }
 
-    try {
-        const response = await fetch(`http://localhost:3000/api/translate`, {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-                "X-RapidAPI-Key": API_KEY,
-                "X-RapidAPI-Host": API_HOST,
-            },
-            body: JSON.stringify({
-                texts: texts,
-                target_lang: target
-            }),
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            if (result.translations && result.translations.length > 0) {
-                return result.translations.map((t: any) => t.text);
-            }
-        }
-        throw new Error("翻译失败");
-    } catch (error) {
-        showErrorMessage(`API 请求出现问题。\n(${error})`);
-        return undefined;
-    }
-};
 
 const loadFonts = async (node: TextNode) => {
     const fontName = node.fontName;
