@@ -6,13 +6,36 @@ export interface TranslationResult {
   detected: string;
 }
 
+interface DeepLResponse {
+  translations: Array<{
+    text: string;
+    detected_source_language: string;
+  }>;
+}
+
+interface DeepLError {
+  message: string;
+  code?: number;
+  status?: number;
+}
+
 export const fetchTranslationsWithDetection = async (
   texts: string[],
   target: string,
   apiKey: string
 ): Promise<TranslationResult[] | undefined> => {
-  if (texts.length === 0) {
+  if (!texts || texts.length === 0) {
     showErrorMessage("翻译文本不能为空");
+    return undefined;
+  }
+
+  if (!target) {
+    showErrorMessage("目标语言不能为空");
+    return undefined;
+  }
+
+  if (!apiKey) {
+    showErrorMessage("API密钥不能为空");
     return undefined;
   }
 
@@ -31,20 +54,22 @@ export const fetchTranslationsWithDetection = async (
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json() as DeepLError;
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '未知错误'}`);
     }
 
-    const result = await response.json();
+    const result = await response.json() as DeepLResponse;
     if (!result.translations || result.translations.length === 0) {
       throw new Error("翻译返回数据格式错误");
     }
 
-    return result.translations.map((t: any) => ({
+    return result.translations.map(t => ({
       translated: t.text,
       detected: t.detected_source_language
     }));
   } catch (error) {
-    showErrorMessage(`API请求出现问题。\n(${error})`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    showErrorMessage(`API请求出现问题：${errorMessage}`);
     return undefined;
   }
 };
