@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "es6",
-    "lib": ["ES2017", "dom"],
+    "module": "esnext",
+    "lib": [
+      "ES2017",
+      "dom"
+    ],
     "moduleResolution": "node",
     "typeRoots": [
       "./node_modules/@types",
@@ -21,9 +24,17 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
   },
   "include": [
     "./**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

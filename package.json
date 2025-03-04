@@ -1,5 +1,5 @@
 {
-    "name": "DeepL Translation",
+    "name": "deepl-translation",
     "version": "1.0.0",
     "description": "Figma DeelL auto translater plugin",
     "author": "",
@@ -17,17 +17,20 @@
         "@figma/plugin-typings": "^1.97.0",
         "@types/franc": "^5.0.3",
         "@types/node": "^20.14.11",
-        "typescript": "^5.0.0",
+        "@types/react": "^19.0.10",
         "eslint": "^8.0.0",
-        "eslint-config-next": "^13.0.0"
+        "eslint-config-next": "^13.0.0",
+        "typescript": "^5.0.0"
     },
     "dependencies": {
+        "@types/cors": "^2.8.17",
+        "axios": "^1.0.0",
+        "cors": "^2.8.5",
+        "franc": "^6.2.0",
+        "franc-min": "^6.2.0",
         "next": "^13.0.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "axios": "^1.0.0",
-        "franc": "^6.2.0",
-        "franc-min": "^6.2.0",
         "yarn": "^1.22.22"
     }
 }
