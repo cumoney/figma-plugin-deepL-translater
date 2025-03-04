@@ -5,17 +5,29 @@
     "author": "",
     "main": "code.js",
     "scripts": {
-        "build": "tsc -p tsconfig.json",
-        "watch": "npm run build -- --watch"
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "watch": "npm run build -- --watch",
+        "test": "jest"
     },
     "license": "",
     "devDependencies": {
         "@figma/plugin-typings": "^1.97.0",
         "@types/franc": "^5.0.3",
         "@types/node": "^20.14.11",
-        "typescript": "*"
+        "typescript": "^5.0.0",
+        "eslint": "^8.0.0",
+        "eslint-config-next": "^13.0.0"
     },
     "dependencies": {
-        "franc": "^6.2.0"
+        "next": "^13.0.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "axios": "^1.0.0",
+        "franc": "^6.2.0",
+        "franc-min": "^6.2.0",
+        "yarn": "^1.22.22"
     }
 }

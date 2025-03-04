@@ -128,6 +128,33 @@
     </div>
 
     <script>
+        let apiKey = '';
+        document.getElementById('apiKeyInput').onchange = (e) => {
+        apiKey = e.target.value.trim();
+    };
+    // 在发送翻译请求时,传递 API 密钥
+    document.getElementById("translateButton").onclick = () => {
+        parent.postMessage({ 
+            pluginMessage: { 
+            type: "translate", 
+            target: targetLanguage, 
+            isReplace: true,
+            apiKey: apiKey
+    }
+  }, "*");
+};
+
+document.getElementById("translateButtonAddSuggestion").onclick = () => {
+  parent.postMessage({ 
+    pluginMessage: { 
+      type: "translate", 
+      target: targetLanguage, 
+      isReplace: false,
+      apiKey: apiKey
+    }
+  }, "*");
+};
+
       let targetLanguage = "en";
         function showMessage(message, isError = false) {
             parent.postMessage({ pluginMessage: { type: isError ? "showError" : "showInfo", message } }, "*");
